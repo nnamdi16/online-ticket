@@ -15,6 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@hapi/joi": "^16.1.8",
     "@types/uuid": "^3.4.6",
     "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
+    "@types/joi": "^14.3.4",
     "@types/node": "^10.9.4",
     "morgan": "^1.9.1",
     "nodemon": "^1.18.4",
