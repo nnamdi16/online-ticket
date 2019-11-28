@@ -3,6 +3,9 @@
 import mongoose from "mongoose";
 import { UserType } from "./user.typings";
 import uuid4 from "uuid/v4";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import CONFIG from "../../config/config";
 
 export interface UserSchema extends UserType, mongoose.Document {}
 const User = new mongoose.Schema(
@@ -64,10 +67,52 @@ const User = new mongoose.Schema(
   }
 );
 
+User.methods.setPassword = (password: string) => {
+  this.salt = crypto.randomBytes(Number(CONFIG.SALT_ROUNDS)).toString("hex");
+  return (this.password = crypto
+    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+    .toString("hex"));
+};
+
+User.methods.comparePassword = (
+  password: string,
+  salt: string,
+  hashedPassword: string
+) => {
+  const hash = crypto
+    .pbkdf2Sync(password, salt, 10000, 512, "sha512")
+    .toString("hex");
+  return hashedPassword === hash;
+};
+
+User.methods.generateJWT = () => {
+  const today = new Date();
+  const expirationDate = new Date(today);
+  expirationDate.setDate(today.getDate() + 60);
+  return (this.token = jwt.sign(
+    {
+      email: this.email,
+      id: this._id,
+      exp: parseInt((expirationDate.getTime() / 100).toString(), 10)
+    },
+    "secret"
+  ));
+};
+
+User.methods.toAuthJSON = () => {
+  return {
+    _id: this._id,
+    email: this.email,
+    salt: this.salt,
+    token: this.token,
+    password: this.setPassword(this.password)
+  };
+};
+
 User.pre<UserSchema>("save", function() {
   if (this.isNew) {
     this.userId = uuid4();
   }
 });
 
-export default mongoose.model("User", User);
+export default mongoose.model<UserSchema>("User", User);
