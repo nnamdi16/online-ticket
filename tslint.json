@@ -1,11 +1,17 @@
 {
-  "extends": [
-    "tslint:latest",
-    "tslint-config-prettier"
-  ],
+  "extends": ["tslint:latest", "tslint-config-prettier"],
   "rules": {
     "no-implicit-dependencies": [true, "dev"],
     "no-console": [true, "dev"],
-    "object-literal-sort-keys": [false, "dev"]
+    "object-literal-sort-keys": [false, "dev"],
+    "interface-name": false,
+    "member-access": [true, "no-public"],
+    "ordered-imports": false,
+    "no-submodule-imports": [
+      false,
+      "rxjs",
+      "@angular/platform-browser",
+      "@angular/core/testing"
+    ]
   }
 }
