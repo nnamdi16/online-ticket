@@ -1,11 +1,13 @@
-import * as bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import * as jwt from "jwt-then";
-import config from "../../config/config";
+// import * as bcrypt from "bcrypt";
+// import { Request, Response } from "express";
+// import * as jwt from "jwt-then";
+// import config from "../../config/config";
 import User, { UserSchema } from "./user.model";
+import { UserType } from "./user.typings";
+import jwt from "jsonwebtoken";
 
 export default class UserController {
-  public createUser = async (data: UserSchema) => {
+  public register = async (data: UserSchema): Promise<any> => {
     const newUser = new User({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -27,8 +29,45 @@ export default class UserController {
           msg: "User email already exist"
         };
       }
-    
-    } catch (error) {}
+      newUser.setPassword(data.password);
+      newUser.generateJWT();
+      const user = await newUser.save();
+      return {
+        error: false,
+        user
+      };
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  public authenticate = async (data: UserSchema): Promise<any> => {
+    const newUser = new User();
+    const user = await User.findOne({ email: data.email });
+    if (!user) {
+      return {
+        error: true,
+        msg: "Invalid Email or Password"
+      };
+    }
+    const { password, salt } = user;
+    const matchedPassword = await newUser.comparePassword(
+      data.password,
+      salt,
+      password
+    );
+
+    if (!matchedPassword) {
+      return {
+        error: true,
+        msg: "Invalid Credentials. Please check your email and password"
+      };
+    }
+
+    return {
+      error: false,
+      user
+    };
   };
 }
 

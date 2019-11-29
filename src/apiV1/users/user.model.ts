@@ -67,7 +67,7 @@ const User = new mongoose.Schema(
   }
 );
 
-User.methods.setPassword = (password: string) => {
+User.methods.setPassword = function(password: string) {
   this.salt = crypto.randomBytes(Number(CONFIG.SALT_ROUNDS)).toString("hex");
   return (this.password = crypto
     .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
@@ -85,7 +85,7 @@ User.methods.comparePassword = (
   return hashedPassword === hash;
 };
 
-User.methods.generateJWT = () => {
+User.methods.generateJWT = function() {
   const today = new Date();
   const expirationDate = new Date(today);
   expirationDate.setDate(today.getDate() + 60);
@@ -99,7 +99,7 @@ User.methods.generateJWT = () => {
   ));
 };
 
-User.methods.toAuthJSON = () => {
+User.methods.toAuthJSON = function() {
   return {
     _id: this._id,
     email: this.email,
