@@ -1,7 +1,7 @@
-import * as bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import * as jwt from "jwt-then";
-import config from "../../config/config";
+// import * as bcrypt from "bcrypt";
+// import { Request, Response } from "express";
+// import * as jwt from "jwt-then";
+// import config from "../../config/config";
 import User, { UserSchema } from "./user.model";
 
 export default class UserController {
@@ -27,8 +27,16 @@ export default class UserController {
           msg: "User email already exist"
         };
       }
-    
-    } catch (error) {}
+      newUser.setPassword(data.password);
+      newUser.generateJWT();
+      const user = await newUser.save();
+      return {
+        error: false,
+        user
+      };
+    } catch (error) {
+      throw new Error(error);
+    }
   };
 }
 
