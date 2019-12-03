@@ -1,9 +1,11 @@
 import { Document } from "mongoose";
 
 export interface TransactionType extends Document {
-  customerId: string;
-  productsId: string;
-  cashierId: string;
-  total: number;
+  eventId: string;
+  ticketId: string;
+  amount: string;
+  userId:string;
+  transactionRef: number;
+  status:string
   [key: string]: any;
 }
