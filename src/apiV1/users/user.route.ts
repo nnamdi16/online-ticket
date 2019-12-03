@@ -18,7 +18,7 @@ users.post(
         return res.status(400).json({
           success: false,
           message: error.message
-        });
+        });    
       }
       const data = await controller.register(value);
 

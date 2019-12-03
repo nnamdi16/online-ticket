@@ -14,9 +14,8 @@ export default class UserController {
       username: data.username,
       email: data.email,
       password: data.password,
-      isAdmin: data.isAdmin,
-      isSuper: data.isSuper,
-      deleted: data.deleted
+      deleted: data.deleted,
+      isPlanner: data.isPlanner
     });
 
     try {
