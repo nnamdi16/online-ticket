@@ -39,11 +39,7 @@ const User = new mongoose.Schema(
       required: true,
       trim: true
     },
-    isAdmin: {
-      type: Boolean
-    },
-
-    isSuper: {
+    isPlanner: {
       type: Boolean
     },
 
