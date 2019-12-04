@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-export interface ItemType extends Document {
+export interface EventType extends Document {
   title: string;
   description: string;
   price: number;
