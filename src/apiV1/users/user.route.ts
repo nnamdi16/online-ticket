@@ -22,12 +22,11 @@ users.post(
       }
       const data = await controller.register(value);
 
-      if (data.error) {
-        res.status(401).json({
+      if (error) {
+        return res.status(401).json({
           success: false,
           message: data.msg
         });
-        return;
       }
 
       const { userId, firstName, lastName, username, email } = data.user;
@@ -43,7 +42,8 @@ users.post(
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: error.toString()
+        message: error.toString(),
+        status: 500
       });
       next(error);
     }
@@ -66,7 +66,7 @@ users.post(
 
       const data = await controller.authenticate(value);
 
-      // console.log(data);
+      console.log(data);
       const { userId, email } = data.user;
       // req.session.user = { id: userId, email };
       if (data.error) {
