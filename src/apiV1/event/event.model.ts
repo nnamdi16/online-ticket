@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import uuid4 from "uuid/v4";
-import { ItemType } from "./event.typings";
+import { EventType } from "./event.typings";
 
-export interface ItemSchema extends ItemType, mongoose.Document {}
+export interface EventSchema extends EventType, mongoose.Document {}
 
 const Events = new mongoose.Schema(
   {
@@ -16,7 +16,7 @@ const Events = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: false
+      required: true
     },
     location: {
       type: String,
@@ -37,7 +37,7 @@ const Events = new mongoose.Schema(
     },
 
     time: {
-      type: Date,
+      type: String,
       required: true
     },
 
@@ -56,17 +56,18 @@ const Events = new mongoose.Schema(
       type: String
     },
 
-    deleted: {
+    status: {
       type: Boolean
     }
   },
   { id: false, timestamps: true }
 );
+// Status includes, deleted, postponed,cancelled
 
-Events.pre<ItemSchema>("save", function() {
+Events.pre<EventSchema>("save", function() {
   if (this.isNew) {
-    this.itemId = uuid4();
+    this.eventId = uuid4();
   }
 });
 
-export default mongoose.model<ItemSchema>("Event", Events);
+export default mongoose.model<EventSchema>("Event", Events);
