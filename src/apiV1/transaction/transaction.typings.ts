@@ -7,5 +7,6 @@ export interface TransactionType extends Document {
   userId: string;
   transactionRef: string;
   status: string;
+  onlineTicketWalletId: string;
   [key: string]: any;
 }
