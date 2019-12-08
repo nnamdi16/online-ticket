@@ -19,7 +19,8 @@ export function validateUser(profile: UserType) {
       .max(255),
     username: Joi.string()
       .min(2)
-      .max(255)
+      .max(255),
+    isPlanner: Joi.boolean().required()
   });
 
   return schema.validate(profile, {
