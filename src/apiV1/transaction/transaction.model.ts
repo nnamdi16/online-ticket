@@ -34,6 +34,9 @@ const Transaction = new mongoose.Schema(
     status: {
       type: String,
       required: true
+    },
+    onlineTicketId: {
+      type: String
     }
   },
 
