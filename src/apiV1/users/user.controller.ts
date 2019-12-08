@@ -31,8 +31,9 @@ export default class UserController {
         });
       }
 
-      const { userId, firstName, lastName, username, email } = data.user;
-      const { token } = data.user;
+      const { userId, firstName, lastName, username, email, token } = data.user;
+      // const { token } = data.user;
+
       const userDetails = { userId, firstName, lastName, username, email };
       return res.status(201).json({
         success: true,
