@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-export interface PagaWallet extends Document {
+export interface OnlineTicketWalletType extends Document {
   deleted: boolean;
   userId: string;
   pagaReferenceKey: string;

@@ -40,7 +40,8 @@ const User = new mongoose.Schema(
       trim: true
     },
     isPlanner: {
-      type: Boolean
+      type: Boolean,
+      required: true
     },
 
     deleted: {

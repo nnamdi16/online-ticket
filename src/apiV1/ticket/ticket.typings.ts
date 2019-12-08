@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-export interface Ticket extends Document {
+export interface TicketType extends Document {
   deleted: boolean;
   ticketTypeId:string;
   amount:string;

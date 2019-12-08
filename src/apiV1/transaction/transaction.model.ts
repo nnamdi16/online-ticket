@@ -6,22 +6,37 @@ export interface TransactionSchema extends TransactionType, mongoose.Document {}
 
 const Transaction = new mongoose.Schema(
   {
-    serviceId: {
+    transactionId: {
       type: String
     },
-    customerId: {
-      type: String
+    eventId: {
+      type: String,
+      required: true
     },
-    productsId: {
-      type: String
-    },
-
-    cashierId: {
-      type: String
+    ticketId: {
+      type: String,
+      required: true
     },
 
-    total: {
-      type: Number
+    amount: {
+      type: Number,
+      required: true
+    },
+
+    userId: {
+      type: String,
+      required: true
+    },
+    transactionRef: {
+      type: String,
+      required: true
+    },
+    status: {
+      type: String,
+      // required: true
+    },
+    onlineTicketWalletId: {
+      type: String
     }
   },
 
@@ -30,7 +45,7 @@ const Transaction = new mongoose.Schema(
 
 Transaction.pre<TransactionSchema>("save", function() {
   if (this.isNew) {
-    this.serviceId = uuid4();
+    this.transactionId = uuid4();
   }
 });
 

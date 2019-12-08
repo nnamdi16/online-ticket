@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import uuid4 from "uuid/v4";
-import { Ticket } from "./ticket.typings";
+import { TicketType } from "./ticket.typings";
 
-export interface TicketSchema extends Ticket, mongoose.Document {}
+export interface TicketSchema extends TicketType, mongoose.Document {}
 
 const Ticket = new mongoose.Schema(
   {
