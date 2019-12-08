@@ -17,6 +17,7 @@ import { TicketType } from "../ticketType/ticketType.typings";
 
 export default class TicketController {
   createTicket = async (data: TicketType): Promise<any> => {
+    
     const newTicket = new Ticket({
       ticketTypeId: data.ticketTypeId,
       amount: data.amount,
