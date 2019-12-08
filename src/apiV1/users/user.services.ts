@@ -38,10 +38,14 @@ export default class UserService {
       newUser.setPassword(data.password);
       newUser.generateJWT();
       const user = await newUser.save();
-      const onlineTicketWallet = new OnlineTicketWallet({
-        userId: user.userId
-      });
-      await onlineTicketWallet.save();
+
+      const { isPlanner } = user;
+      if (isPlanner) {
+        const onlineTicketWallet = new OnlineTicketWallet({
+          userId: user.userId
+        });
+        await onlineTicketWallet.save();
+      }
 
       return {
         error: false,
