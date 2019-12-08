@@ -6,24 +6,27 @@ export interface OnlineTicketWalletSchema
   extends OnlineTicketWalletType,
     mongoose.Document {}
 
-const OnlineTicketWallet = new mongoose.Schema({
-  OnlineTicketId: {
-    type: String
-  },
+const OnlineTicketWallet = new mongoose.Schema(
+  {
+    onlineTicketId: {
+      type: String
+    },
 
-  userId: {
-    type: String,
-    required: true
+    userId: {
+      type: String,
+      required: true
+    },
+    pagaReferenceKey: {
+      type: String,
+      default: ""
+    },
+    amount: {
+      type: Number,
+      default: 0
+    }
   },
-  pagaReferenceKey: {
-    type: String,
-    default: ""
-  },
-  amount: {
-    type: Number,
-    default: 0
-  }
-});
+  { timestamps: true }
+);
 
 OnlineTicketWallet.pre<OnlineTicketWalletSchema>("save", function() {
   if (this.isNew) {
