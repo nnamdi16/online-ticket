@@ -1,6 +1,6 @@
 // import * as mongoose from "mongoose";
 // const Schema = mongoose.Schema;
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { UserType } from "./user.typings";
 import uuid4 from "uuid/v4";
 import crypto from "crypto";
@@ -10,6 +10,7 @@ import CONFIG from "../../config/config";
 export interface UserSchema extends UserType, mongoose.Document {}
 const User = new mongoose.Schema(
   {
+    _id: Schema.Types.ObjectId,
     userId: {
       type: String
     },
