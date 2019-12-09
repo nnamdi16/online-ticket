@@ -13,8 +13,8 @@ const OnlineTicketWallet = new mongoose.Schema(
     },
 
     userId: {
-      type: String,
-      required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
     },
     pagaReferenceKey: {
       type: String,
