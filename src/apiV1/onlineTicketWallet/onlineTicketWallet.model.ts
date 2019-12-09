@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import uuid4 from "uuid/v4";
 import { OnlineTicketWalletType } from "./onlineTicketWallet.typings";
 
@@ -13,7 +13,7 @@ const OnlineTicketWallet = new mongoose.Schema(
     },
 
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User"
     },
     pagaReferenceKey: {
