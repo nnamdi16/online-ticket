@@ -10,7 +10,6 @@ import CONFIG from "../../config/config";
 export interface UserSchema extends UserType, mongoose.Document {}
 const User = new mongoose.Schema(
   {
-    _id: Schema.Types.ObjectId,
     userId: {
       type: String
     },
