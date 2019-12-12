@@ -3,9 +3,7 @@
 // import * as jwt from "jwt-then";
 // import config from "../../config/config";
 import User, { UserSchema } from "./user.model";
-import OnlineTicketWallet, {
-  OnlineTicketWalletSchema
-} from "../onlineTicketWallet/onlineTicketWallet.model";
+import OnlineTicketWallet from "../onlineTicketWallet/onlineTicketWallet.model";
 import { UserType } from "./user.typings";
 import jwt from "jsonwebtoken";
 
