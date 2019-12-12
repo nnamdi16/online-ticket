@@ -8,12 +8,17 @@ export interface OnlineTicketWalletSchema
 
 const OnlineTicketWallet = new mongoose.Schema(
   {
-    onlineTicketId: {
-      type: String
+    // onlineTicketId: {
+    //   type: String
+    // },
+    _id: {
+      type: String,
+      default: uuid4
     },
 
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
+      required: true,
       ref: "User"
     },
     pagaReferenceKey: {
@@ -28,11 +33,11 @@ const OnlineTicketWallet = new mongoose.Schema(
   { timestamps: true }
 );
 
-OnlineTicketWallet.pre<OnlineTicketWalletSchema>("save", function() {
-  if (this.isNew) {
-    this.OnlineTicketId = uuid4();
-  }
-});
+// OnlineTicketWallet.pre<OnlineTicketWalletSchema>("save", function() {
+//   if (this.isNew) {
+//     this.OnlineTicketId = uuid4();
+//   }
+// });
 
 export default mongoose.model<OnlineTicketWalletSchema>(
   "OnlineTicketWallet",
