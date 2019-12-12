@@ -1,27 +1,17 @@
 import Joi from "@hapi/joi";
-import { TicketType } from "./ticket.typings";
+import { Ticket } from "./ticket.typings";
 
-export function validateEvent(profile: TicketType) {
+export function validateTicket(profile: Ticket) {
   const schema = Joi.object().keys({
-    title: Joi.string()
-      .min(2)
-      .max(255)
-      .required(),
-    description: Joi.string()
-      .min(5)
-      .max(5000),
-    location: Joi.string()
-      .min(2)
+    eventId: Joi.string()
+      .min(10)
       .max(255),
-    category: Joi.string()
-      .min(2)
+    ticketTypeId: Joi.string()
+      .min(10)
       .max(255),
-    startDate: Joi.date()
-      .less("now")
-      .required(),
-    endDate: Joi.date().less("now"),
-    time: Joi.string(),
-    noOfAttendees: Joi.number().greater(0)
+    numberOfTickets: Joi.number().greater(0),
+    price: Joi.number().greater(0),
+    userId: Joi.string()
   });
 
   return schema.validate(profile, {
