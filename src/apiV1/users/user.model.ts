@@ -10,9 +10,13 @@ import CONFIG from "../../config/config";
 export interface UserSchema extends UserType, mongoose.Document {}
 const User = new mongoose.Schema(
   {
-    userId: {
-      type: String
+    _id: {
+      type: String,
+      default: uuid4
     },
+    // userId: {
+    //   type: String
+    // },
 
     firstName: {
       type: String,
@@ -58,7 +62,6 @@ const User = new mongoose.Schema(
     }
   },
   {
-    id: false,
     timestamps: true,
     useNestedStrict: true
   }
@@ -106,10 +109,10 @@ User.methods.toAuthJSON = function() {
   };
 };
 
-User.pre<UserSchema>("save", function() {
-  if (this.isNew) {
-    this.userId = uuid4();
-  }
-});
+// User.pre<UserSchema>("save", function() {
+//   if (this.isNew) {
+//     this.userId = uuid4();
+//   }
+// });
 
 export default mongoose.model<UserSchema>("User", User);
