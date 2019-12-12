@@ -14,7 +14,7 @@ const {
 router.get("/", getAllEvents);
 router.get("/:id", getOneEventById);
 router.put("/:id", updateEvent);
-router.get("/:id", deleteEvent);
+router.delete("/:id", deleteEvent);
 router.post("/register", register);
 
 export default router;
