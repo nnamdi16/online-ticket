@@ -6,13 +6,13 @@ export default class TicketTypeService {
     const newTicketType = new TicketType({
       eventId: data.eventId,
       ticketType: data.ticketType,
-      numberOfTickets: data.numberOfTickets,
+      numberOfTicketsAvailable: data.numberOfTicketsAvailable,
       price: data.price
     });
 
     try {
       const registeredEvent = await Event.exists({
-        eventId: data.eventId
+        _id: data.eventId
       });
       if (!registeredEvent) {
         return {
