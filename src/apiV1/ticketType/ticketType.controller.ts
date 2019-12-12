@@ -31,14 +31,14 @@ export default class TicketTypeController {
       const {
         ticketTypeId,
         eventId,
-        numberOfTickets,
+        numberOfTicketsAvailable,
         price,
         ticketType
       } = data.ticketType;
       const ticketTypeDetails = {
         ticketTypeId,
         eventId,
-        numberOfTickets,
+        numberOfTicketsAvailable,
         price,
         ticketType
       };

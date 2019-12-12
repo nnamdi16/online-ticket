@@ -6,7 +6,7 @@ export function validateTicketType(profile: TicketType) {
     eventId: Joi.string().required(),
     ticketType: Joi.string(),
     price: Joi.number().min(0),
-    numberOfTickets: Joi.number().min(0)
+    numberOfTicketsAvailable: Joi.number().min(0)
   });
 
   return schema.validate(profile, {

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import uuid4 from "uuid/v4";
 import { TransactionType } from "./transaction.typings";
 
@@ -6,15 +6,21 @@ export interface TransactionSchema extends TransactionType, mongoose.Document {}
 
 const Transaction = new mongoose.Schema(
   {
-    transactionId: {
-      type: String
+    // ticketTransactionId: {
+    //   type: String
+    // },
+    _id: {
+      type: String,
+      default: uuid4
     },
     eventId: {
       type: String,
+      ref: "Event",
       required: true
     },
     ticketId: {
       type: String,
+      ref: "Ticket",
       required: true
     },
 
@@ -25,6 +31,7 @@ const Transaction = new mongoose.Schema(
 
     userId: {
       type: String,
+      ref: "User",
       required: true
     },
     transactionRef: {
@@ -32,7 +39,7 @@ const Transaction = new mongoose.Schema(
       required: true
     },
     status: {
-      type: String,
+      type: String
       // required: true
     },
     onlineTicketWalletId: {
@@ -43,9 +50,17 @@ const Transaction = new mongoose.Schema(
   { id: false, timestamps: true }
 );
 
+Transaction.methods.setTransactionRef = function(transactionId: string) {
+  return (this.transactionRef = transactionId);
+};
+
+Transaction.methods.setAmount = function(price: number) {
+  return (this.amount = price);
+};
+
 Transaction.pre<TransactionSchema>("save", function() {
   if (this.isNew) {
-    this.transactionId = uuid4();
+    this.ticketTransactionId = uuid4();
   }
 });
 

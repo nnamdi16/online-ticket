@@ -3,9 +3,7 @@
 // import * as jwt from "jwt-then";
 // import config from "../../config/config";
 import User, { UserSchema } from "./user.model";
-import OnlineTicketWallet, {
-  OnlineTicketWalletSchema
-} from "../onlineTicketWallet/onlineTicketWallet.model";
+import OnlineTicketWallet from "../onlineTicketWallet/onlineTicketWallet.model";
 import { UserType } from "./user.typings";
 import jwt from "jsonwebtoken";
 
@@ -38,11 +36,11 @@ export default class UserService {
       newUser.setPassword(data.password);
       newUser.generateJWT();
       const user = await newUser.save();
-
+      console.log(`User is ${user}`);
       const { isPlanner } = user;
       if (isPlanner) {
         const onlineTicketWallet = new OnlineTicketWallet({
-          userId: user.userId
+          userId: user._id
         });
         await onlineTicketWallet.save();
       }

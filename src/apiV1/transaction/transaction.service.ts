@@ -1,5 +1,7 @@
 import Transaction, { TransactionSchema } from "./transaction.model";
 import Ticket, { TicketSchema } from "../ticket/ticket.model";
+import TicketType from "../ticketType/ticketType.model";
+import { clientFee, companyFee } from "./transaction.util";
 import OnlineTicketWallet, {
   OnlineTicketWalletSchema
 } from "../onlineTicketWallet/onlineTicketWallet.model";
@@ -28,22 +30,15 @@ export default class TransactionService {
     }
   };
 
-  public initiateTransaction = async (data: any): Promise<any> => {
-    const pagaBusinessClient = new PagaBusiness();
+  public initiateTransaction = async (param: any): Promise<any> => {
+    // Define parameter for instantiating transaction
     const {
-      // eventId,
-      // amount,
-      // userId,
-      // ticketId,
-      // transactionRef,
-      referenceNumber,
-      amount,
+      ticketId,
       currency,
       destinationAccount,
       destinationBank,
       withdrawalCode,
       sourceOfFunds,
-      transferReference,
       senderPrincipal,
       senderCredentials,
       suppressRecipientMsg,
@@ -51,16 +46,36 @@ export default class TransactionService {
       alternateSenderName,
       minRecipientKYCLevel,
       holdingPeriod
-    } = data;
-    // const newTransaction = new Transaction({
-    //   eventId,
-    //   amount,
-    //   userId,
-    //   ticketId,
-    //   transactionRef
-    // });
+    } = param;
 
+    const pagaBusinessClient = new PagaBusiness();
     try {
+      const getTicket = await Ticket.findOne({ _id: ticketId });
+      console.log(`Stop Freaking out ${getTicket}`);
+      if (getTicket === null) {
+        throw new Error("Ticket does not Exist");
+      }
+
+      // Destructuring ticketTypes variables
+      const {
+        price: amount,
+        _id: referenceNumber,
+        _id: transferReference,
+        userId,
+        ticketTypeId
+      } = getTicket;
+      const getEventId = await TicketType.findOne({ _id: ticketTypeId });
+      console.log(`Get Event ${getEventId}`);
+
+      // Destructuring getEventById
+      const {
+        _id,
+        eventId,
+        ticketType,
+        numberOfTicketsAvailable,
+        price
+      } = getEventId;
+
       // const {
       //   referenceNumber,
       //   currency,
@@ -78,22 +93,7 @@ export default class TransactionService {
       //   holdingPeriod
       // } =
 
-      // const userDetails = [
-      //   referenceNumber,
-      //   amount,
-      //   currency,
-      //   destinationAccount,
-      //   destinationBank,
-      //   withdrawalCode,
-      //   sourceOfFunds,
-      //   transferReference,
-      //   suppressRecipientMsg,
-      //   locale,
-      //   alternateSenderName,
-      //   minRecipientKYCLevel,
-      //   holdingPeriod
-      // ];
-      const transferFunds = await pagaBusinessClient.pagaBusinessClient.moneyTransfer(
+      const userDetails = [
         referenceNumber,
         amount,
         currency,
@@ -109,14 +109,94 @@ export default class TransactionService {
         alternateSenderName,
         minRecipientKYCLevel,
         holdingPeriod
+      ];
+
+      // Make payments for the event by transferring money from client paga account to app's paga account
+      const transferFunds = await pagaBusinessClient.pagaBusinessClient.moneyTransfer(
+        ...userDetails
+      );
+      // console.log("Stop the work");
+      // console.log(Object.keys(transferFunds));
+
+      // Destructuring response from money transfer
+      const {
+        data: { transactionId, message, responseCode },
+        data
+      } = transferFunds;
+
+      if (data === undefined) {
+        const {
+          exception: {
+            response: {
+              data: { errorMessage, responseCode: errorResponseCode }
+            }
+          }
+        } = transferFunds;
+        return {
+          error: true,
+          msg: errorMessage,
+          status: errorResponseCode
+        };
+      }
+      console.log(data);
+      // console.log(data, errorMessage, responseCode);
+
+      if (transactionId == null) {
+        return {
+          error: true,
+          msg: message,
+          statusText: "Transaction Unsuccessful",
+          status: responseCode
+        };
+      }
+      console.log("Start the work");
+      console.log(userId);
+      const solve = await OnlineTicketWallet.findOne({ userId });
+      console.log(`we've solved the bug ${solve}`);
+      console.log(`This is the userId ${userId}`);
+
+      const updateEventPlannerTicket = await OnlineTicketWallet.findOneAndUpdate(
+        { userId },
+        { $set: { amount: price, pagaReferenceKey: transactionId } },
+        { new: true }
       );
 
-      console.log(transferFunds);
-      console.log("Grow boy");
+      console.log(updateEventPlannerTicket);
+      // console.log(`Our transaction is here ${transactionId}`);
+      // if (transactionId === null) {
+      //   return {
+      //     error: true,
+      //     data: message
+      //   };
+      // }
 
+      // Updates client OnlineWalletAccount
+      // const updateOnlineTicketWallet = OnlineTicketWallet.findOneAndUpdate(
+      //   { _id: userId },
+      //   { $set: { amount } },
+      //   { new: true },
+      //   (err, doc) => {
+      //     if (err) {
+      //       console.log(err.message);
+      //     }
+      //     console.log(`Working update ${doc}`);
+      //   }
+      // );
+      // console.log(`the find ${Object.keys(updateOnlineTicketWallet)}`);
+
+      // const newTransaction = new Transaction({
+      //   eventId,
+      //   ticketId,
+      //   amount,
+      //   userId,
+      //   transactionRef: transactionId
+      // });
+      // const transaction = newTransaction.save();
       return {
         error: false,
-        data: transferFunds.data
+        msg: message,
+        statusText: "Successfully Registered for the event "
+        // data
       };
 
       // const getWalletBalance = await OnlineTicketWallet.findOne({
@@ -127,4 +207,6 @@ export default class TransactionService {
       throw new Error(error);
     }
   };
+
+
 }

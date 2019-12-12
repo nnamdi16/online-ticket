@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import uuid4 from "uuid/v4";
 import { OnlineTicketWalletType } from "./onlineTicketWallet.typings";
 
@@ -8,13 +8,18 @@ export interface OnlineTicketWalletSchema
 
 const OnlineTicketWallet = new mongoose.Schema(
   {
-    onlineTicketId: {
-      type: String
+    // onlineTicketId: {
+    //   type: String
+    // },
+    _id: {
+      type: String,
+      default: uuid4
     },
 
     userId: {
       type: String,
-      required: true
+      required: true,
+      ref: "User"
     },
     pagaReferenceKey: {
       type: String,
@@ -28,11 +33,11 @@ const OnlineTicketWallet = new mongoose.Schema(
   { timestamps: true }
 );
 
-OnlineTicketWallet.pre<OnlineTicketWalletSchema>("save", function() {
-  if (this.isNew) {
-    this.OnlineTicketId = uuid4();
-  }
-});
+// OnlineTicketWallet.pre<OnlineTicketWalletSchema>("save", function() {
+//   if (this.isNew) {
+//     this.OnlineTicketId = uuid4();
+//   }
+// });
 
 export default mongoose.model<OnlineTicketWalletSchema>(
   "OnlineTicketWallet",

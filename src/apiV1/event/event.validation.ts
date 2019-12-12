@@ -19,6 +19,7 @@ export function validateEvent(profile: EventType) {
     startDate: Joi.date()
       .less("now")
       .required(),
+    authorId: Joi.string().required(),
     endDate: Joi.date().less("now"),
     time: Joi.string(),
     noOfAttendees: Joi.number().greater(0)
