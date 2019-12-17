@@ -23,6 +23,10 @@ const User = new mongoose.Schema(
       required: true,
       trim: true
     },
+    phoneNumber: {
+      type: String,
+      required: true
+    },
     lastName: {
       type: String,
       required: true

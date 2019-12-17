@@ -48,4 +48,46 @@ export default class TransactionController {
       return next(error);
     }
   };
+
+  public merchantPayment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const data = await service.payEventCreators(req.body);
+      return res.status(201).json({
+        success: true,
+        message: "Transaction completed",
+        data
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+      return next(error);
+    }
+  };
+
+  public loyaltyGift = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const data = await service.loyaltyGift(req.body);
+      return res.status(201).json({
+        success: true,
+        message: "Transaction completed",
+        data
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+      return next(error);
+    }
+  };
 }

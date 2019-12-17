@@ -15,18 +15,18 @@ const Transaction = new mongoose.Schema(
     },
     eventId: {
       type: String,
-      ref: "Event",
-      required: true
+      ref: "Event"
+      // required: true
     },
     ticketId: {
       type: String,
-      ref: "Ticket",
-      required: true
+      ref: "Ticket"
+      // required: true
     },
 
     amount: {
-      type: Number,
-      required: true
+      type: Number
+      // required: true
     },
 
     userId: {
@@ -35,8 +35,8 @@ const Transaction = new mongoose.Schema(
       required: true
     },
     transactionRef: {
-      type: String,
-      required: true
+      type: String
+      // required: true
     },
     status: {
       type: String
@@ -44,6 +44,14 @@ const Transaction = new mongoose.Schema(
     },
     onlineTicketWalletId: {
       type: String
+    },
+    transactionType: {
+      type: String
+      // required: true
+    },
+    phoneNumber: {
+      type: String,
+      required: true
     }
   },
 

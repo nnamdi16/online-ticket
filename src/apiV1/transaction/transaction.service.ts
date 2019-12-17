@@ -5,6 +5,8 @@ import { clientFee, companyFee } from "./transaction.util";
 import OnlineTicketWallet, {
   OnlineTicketWalletSchema
 } from "../onlineTicketWallet/onlineTicketWallet.model";
+import User from "../users/user.model";
+import uuid4 from "uuid/v4";
 
 import PagaBusiness from "./pagaBuildRequest";
 
@@ -45,7 +47,8 @@ export default class TransactionService {
       locale,
       alternateSenderName,
       minRecipientKYCLevel,
-      holdingPeriod
+      holdingPeriod,
+      transactionType
     } = param;
 
     const pagaBusinessClient = new PagaBusiness();
@@ -75,23 +78,6 @@ export default class TransactionService {
         numberOfTicketsAvailable,
         price
       } = getEventId;
-
-      // const {
-      //   referenceNumber,
-      //   currency,
-      //   destinationAccount,
-      //   destinationBank,
-      //   senderPrincipal,
-      //   senderCredentials,
-      //   withdrawalCode,
-      //   sourceOfFunds,
-      //   transferReference,
-      //   suppressRecipientMsg,
-      //   locale,
-      //   alternateSenderName,
-      //   minRecipientKYCLevel,
-      //   holdingPeriod
-      // } =
 
       const userDetails = [
         referenceNumber,
@@ -162,6 +148,7 @@ export default class TransactionService {
       );
 
       console.log(updateEventPlannerTicket);
+      const { _id: onlineTicketWalletId } = updateEventPlannerTicket;
       // console.log(`Our transaction is here ${transactionId}`);
       // if (transactionId === null) {
       //   return {
@@ -169,7 +156,19 @@ export default class TransactionService {
       //     data: message
       //   };
       // }
+      const newTransaction = new Transaction({
+        eventId,
+        ticketId,
+        amount: price,
+        userId,
+        transactionRef: transactionId,
+        status: message,
+        onlineTicketWalletId,
+        transactionType,
+        phoneNumber: destinationAccount
+      });
 
+      const transaction = await newTransaction.save();
       // Updates client OnlineWalletAccount
       // const updateOnlineTicketWallet = OnlineTicketWallet.findOneAndUpdate(
       //   { _id: userId },
@@ -195,7 +194,8 @@ export default class TransactionService {
       return {
         error: false,
         msg: message,
-        statusText: "Successfully Registered for the event "
+        statusText: "Successfully Registered for the event ",
+        transaction
         // data
       };
 
@@ -208,5 +208,191 @@ export default class TransactionService {
     }
   };
 
+  public payEventCreators = async (param: any): Promise<any> => {
+    // console.log(merchantNumber);
 
+    // Define parameters for request body
+    const {
+      onlineTicketWalletId,
+      amount,
+      phoneNumber,
+      currency,
+      merchantService,
+      purchaserPrincipal,
+      purchaserCredentials,
+      sourceOfFunds,
+      locale
+    } = param;
+    const referenceNumber = this.createReferenceNumber();
+    console.log(referenceNumber);
+
+    try {
+      const loadCustomerDetails = await OnlineTicketWallet.findOne({
+        _id: onlineTicketWalletId
+        // amount: { $gte: amount }
+      });
+      if (!loadCustomerDetails) {
+        return {
+          err: true,
+          message: "Account does not exist "
+        };
+      }
+
+      console.log(loadCustomerDetails);
+      const { userId, amount: walletBalance } = loadCustomerDetails;
+      const data = [
+        { merchantReferenceNumber: userId },
+        amount,
+        { merchantAccount: phoneNumber },
+        referenceNumber,
+        currency,
+        merchantService,
+        purchaserPrincipal,
+        purchaserCredentials,
+        sourceOfFunds,
+        locale
+      ];
+      // const { } = loadCustomerDetails;
+      // if (amount) {
+
+      // }
+      const pagaBusinessClient = new PagaBusiness();
+      if (walletBalance < amount) {
+        return {
+          error: true,
+          message: "Insufficient Balance"
+        };
+      }
+      // const payMerchant = await pagaBusinessClient.pagaBusinessClient.merchantPayment(
+      //   ...data
+      // );
+      // console.log(payMerchant);
+      const response = {
+        referenceNumber,
+        merchantTransactionReference: "",
+        message: "Airtime purchase request made successfully",
+        responseCode: 0,
+        transactionId: "At34",
+        fee: 50.0,
+        currency: null,
+        exchangeRate: null
+      };
+      if (response.transactionId === null) {
+        return {
+          error: true,
+          message: "Transaction Unsuccessful"
+        };
+      }
+      const merchantBalance = walletBalance - amount;
+      const transaction = new Transaction({
+        userId,
+        transactionRef: response.transactionId,
+        status: "APPROVED",
+        transactionType: "FUNDS WITHDRAWAL",
+        amount,
+        phoneNumber
+      });
+      await transaction.save();
+      console.log(onlineTicketWalletId);
+      const updateMerchantWallet = await OnlineTicketWallet.findOneAndUpdate(
+        {
+          _id: onlineTicketWalletId
+        },
+        { $set: { amount: merchantBalance } },
+        { new: true }
+      );
+      console.log(updateMerchantWallet);
+      return {
+        error: false,
+        message: "Successfully paid merchants"
+      };
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  public loyaltyGift = async (param: any): Promise<any> => {
+    const {
+      ticketId,
+      // amount,
+      currency,
+      purchaserPrincipal,
+      purchaserCredentials,
+      locale,
+      transactionType
+    } = param;
+    // const { ticketId } = param;
+    const pagaBusinessClient = new PagaBusiness();
+    try {
+      const validTicket = await Transaction.findOne({ ticketId });
+      if (!validTicket) {
+        return {
+          err: true,
+          message: "Invalid Ticket"
+        };
+      }
+
+      console.log(validTicket);
+      const { phoneNumber, eventId, userId } = validTicket;
+      // const userDetails = [
+      //   amount,
+      //   currency,
+      //   phoneNumber,
+      //   purchaserPrincipal,
+      //   purchaserCredentials,
+      //   { sourceOfFunds: eventId },
+      //   locale
+      // ];
+
+      // const sendLoyaltyGift = await pagaBusinessClient.pagaBusinessClient.airtimePurchase(
+      //   ...userDetails
+      // );
+      // const { transactionId } = sendLoyaltyGift;
+      // console.log(sendLoyaltyGift);
+      // if (transactionId == null) {
+      //   return {
+      //     error: true,
+      //     // msg: message,
+      //     statusText: "Transaction Unsuccessful"
+      //     // status: responseCode
+      //   };
+      // }
+      const response = {
+        referenceNumber: "+251911314250",
+        message: "Airtime purchase request made successfully",
+        responseCode: 0,
+        transactionId: "At34",
+        fee: 50.0,
+        currency: null,
+        exchangeRate: null
+      };
+      const { transactionId, fee: amount } = response;
+      const transaction = new Transaction({
+        eventId,
+        ticketId,
+        amount,
+        userId,
+        transactionRef: transactionId,
+        status: "APPROVED",
+        transactionType,
+        phoneNumber
+      });
+      const loyaltyTransaction = await transaction.save();
+      console.log(loyaltyTransaction);
+
+      return {
+        error: false,
+        // msg: message,
+        statusText: "Successfully Registered for the event ",
+        transaction
+        // data
+      };
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  public createReferenceNumber = () => {
+    return uuid4();
+  };
 }

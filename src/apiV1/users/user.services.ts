@@ -16,7 +16,8 @@ export default class UserService {
       email: data.email,
       password: data.password,
       deleted: data.deleted,
-      isPlanner: data.isPlanner
+      isPlanner: data.isPlanner,
+      phoneNumber: data.phoneNumber
     });
 
     // const onlineTicketWallet = new OnlineTicketWallet({
