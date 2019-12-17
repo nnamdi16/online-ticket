@@ -20,7 +20,8 @@ export function validateUser(profile: UserType) {
     username: Joi.string()
       .min(2)
       .max(255),
-    isPlanner: Joi.boolean()
+    isPlanner: Joi.boolean(),
+    phoneNumber: Joi.string().required()
   });
 
   return schema.validate(profile, {
