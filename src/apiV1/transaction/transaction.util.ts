@@ -1,4 +1,3 @@
-// export { clientFee, companyFee };
 import PagaBusiness from "./pagaBuildRequest";
 import uuid4 from "uuid/v4";
 export default class UtilLibrary {
@@ -24,8 +23,8 @@ export default class UtilLibrary {
     }
   };
 
-  public clientFee = (amount: number) => {
-    return amount - amount * 0.15;
+  public clientReturns = (balance: number, amount: number) => {
+    return amount - amount * 0.15 + balance;
   };
 
   public companyFee = (amount: number) => {
@@ -69,6 +68,17 @@ export default class UtilLibrary {
       const pagaBusinessClient = new PagaBusiness();
       const depositToBank = await pagaBusinessClient.pagaBusinessClient.depositToBank(
         ...transactionDetails
+      );
+      return depositToBank;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+  public moneyTransfer = async (param: any): Promise<any> => {
+    try {
+      const pagaBusinessClient = new PagaBusiness();
+      const depositToBank = await pagaBusinessClient.pagaBusinessClient.depositToBank(
+        param
       );
       return depositToBank;
     } catch (error) {
