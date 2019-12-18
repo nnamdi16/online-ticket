@@ -78,8 +78,6 @@ export default class TransactionService {
       const transferFunds = await pagaBusinessClient.pagaBusinessClient.moneyTransfer(
         ...userDetails
       );
-      // console.log("Stop the work");
-      // console.log(Object.keys(transferFunds));
 
       // Destructuring response from money transfer
       const {
@@ -117,10 +115,14 @@ export default class TransactionService {
       const solve = await OnlineTicketWallet.findOne({ userId });
       console.log(`we've solved the bug ${solve}`);
       console.log(`This is the userId ${userId}`);
+      const { amount: balance } = solve;
+      const util = new UtilLibrary();
+      const clientReturns = util.clientReturns(balance, price);
+      console.log(clientReturns);
 
       const updateEventPlannerTicket = await OnlineTicketWallet.findOneAndUpdate(
         { userId },
-        { $set: { amount: price, pagaReferenceKey: transactionId } },
+        { $set: { amount: clientReturns, pagaReferenceKey: transactionId } },
         { new: true }
       );
 
@@ -290,19 +292,24 @@ export default class TransactionService {
   };
 
   public loyaltyGift = async (param: any): Promise<any> => {
+    // parameters for req.body
     const {
+      eventId,
       ticketId,
-      // amount,
+      amount: price,
       currency,
       purchaserPrincipal,
       purchaserCredentials,
       locale,
       transactionType
     } = param;
-    // const { ticketId } = param;
+
     const pagaBusinessClient = new PagaBusiness();
     try {
-      const validTicket = await Transaction.findOne({ ticketId });
+      const validTicket = await Transaction.findOne({
+        ticketId,
+        eventId
+      });
       if (!validTicket) {
         return {
           err: true,
@@ -311,44 +318,51 @@ export default class TransactionService {
       }
 
       console.log(validTicket);
-      const { phoneNumber, eventId, userId } = validTicket;
-      // const userDetails = [
-      //   amount,
-      //   currency,
-      //   phoneNumber,
-      //   purchaserPrincipal,
-      //   purchaserCredentials,
-      //   { sourceOfFunds: eventId },
-      //   locale
-      // ];
+      const {
+        phoneNumber,
+        userId,
+        ticketId: referenceNumber,
+        eventId: sourceOfFunds
+      } = validTicket;
 
-      // const sendLoyaltyGift = await pagaBusinessClient.pagaBusinessClient.airtimePurchase(
-      //   ...userDetails
-      // );
+      const userDetails = [
+        referenceNumber,
+        price,
+        currency,
+        phoneNumber,
+        purchaserPrincipal,
+        purchaserCredentials,
+        sourceOfFunds,
+        locale
+      ];
+
+      console.log(userDetails[userDetails.length - 2]);
+      const sendLoyaltyGift = await pagaBusinessClient.pagaBusinessClient.airtimePurchase(
+        ...userDetails
+      );
       // const { transactionId } = sendLoyaltyGift;
-      // console.log(sendLoyaltyGift);
-      // if (transactionId == null) {
-      //   return {
-      //     error: true,
-      //     // msg: message,
-      //     statusText: "Transaction Unsuccessful"
-      //     // status: responseCode
-      //   };
-      // }
-      const response = {
-        referenceNumber: "+251911314250",
-        message: "Airtime purchase request made successfully",
-        responseCode: 0,
-        transactionId: "At34",
-        fee: 50.0,
-        currency: null,
-        exchangeRate: null
-      };
-      const { transactionId, fee: amount } = response;
+      console.log(sendLoyaltyGift.data);
+      const { transactionId } = sendLoyaltyGift.data;
+      if (transactionId == null) {
+        return {
+          error: true,
+          statusText: "Transaction Unsuccessful",
+          message: sendLoyaltyGift.data.message
+        };
+      }
+      // const response = {
+      //   referenceNumber: "+251911314250",
+      //   message: "Airtime purchase request made successfully",
+      //   responseCode: 0,
+      //   transactionId: "At34",
+      //   fee: 50.0,
+      //   currency: null,
+      //   exchangeRate: null
+      // };
+
       const transaction = new Transaction({
-        eventId,
         ticketId,
-        amount,
+        amount: price,
         userId,
         transactionRef: transactionId,
         status: "APPROVED",
@@ -361,7 +375,7 @@ export default class TransactionService {
       return {
         error: false,
         // msg: message,
-        statusText: "Successfully Registered for the event ",
+        statusText: "Successfully received bonus airtime ",
         transaction
         // data
       };
@@ -369,6 +383,4 @@ export default class TransactionService {
       throw new Error(error);
     }
   };
-
-  
 }
