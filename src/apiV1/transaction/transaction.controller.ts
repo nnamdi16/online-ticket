@@ -3,8 +3,10 @@ import TransactionService from "../transaction/transaction.service";
 import { validateTransaction as validate } from "../transaction/transaction.validation";
 import jwt from "jsonwebtoken";
 import config from "../../config/config";
+import UtilLibrary from "./transaction.util";
 
 const service = new TransactionService();
+const util = new UtilLibrary();
 
 export default class TransactionController {
   public moneyTransfer = async (
@@ -34,7 +36,7 @@ export default class TransactionController {
     next: NextFunction
   ) => {
     try {
-      const data = await service.getMobileOperators(req.body);
+      const data = await util.getMobileOperators(req.body);
       return res.status(201).json({
         success: true,
         message: "Transaction completed",
