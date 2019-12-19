@@ -1,1 +1,1 @@
-declare module "paga-business"
+declare module "paga-business" 
