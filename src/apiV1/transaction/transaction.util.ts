@@ -27,6 +27,19 @@ export default class UtilLibrary {
     return amount - amount * 0.15 + balance;
   };
 
+  public clientBalanceAfterWithdrawal = (
+    currentBalance: number,
+    amount: number
+  ) => {
+    try {
+      if (currentBalance >= amount) {
+        return currentBalance - amount;
+      }
+    } catch (error) {
+      throw new Error("Insufficient Balance");
+    }
+  };
+
   public companyFee = (amount: number) => {
     return amount * 0.15;
   };

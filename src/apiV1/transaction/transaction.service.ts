@@ -194,19 +194,24 @@ export default class TransactionService {
     const {
       onlineTicketWalletId,
       amount,
-      phoneNumber,
       currency,
-      merchantService,
-      purchaserPrincipal,
-      purchaserCredentials,
-      sourceOfFunds,
+      bankName,
+      // destinationBankUUID,
+      destinationAccountNumber,
+      recipientPhoneNumber,
+      recipientMobileOperatorCode,
+      recipientEmail,
+      recipientName,
+      suppressRecipientMessage,
+      remarks,
       locale
     } = param;
+
     const util = new UtilLibrary();
-    const referenceNumber = util.createReferenceNumber();
-    console.log(referenceNumber);
+    const getBankReferenceNumber = util.createReferenceNumber();
 
     try {
+      const pagaBusinessClient = new PagaBusiness();
       const loadCustomerDetails = await OnlineTicketWallet.findOne({
         _id: onlineTicketWalletId
         // amount: { $gte: amount }
@@ -214,77 +219,95 @@ export default class TransactionService {
       if (!loadCustomerDetails) {
         return {
           err: true,
-          message: "Account does not exist "
+          message: "Account does not exist"
         };
       }
 
       console.log(loadCustomerDetails);
-      const { userId, amount: walletBalance } = loadCustomerDetails;
-      const data = [
-        { merchantReferenceNumber: userId },
-        amount,
-        { merchantAccount: phoneNumber },
-        referenceNumber,
-        currency,
-        merchantService,
-        purchaserPrincipal,
-        purchaserCredentials,
-        sourceOfFunds,
-        locale
-      ];
-      // const { } = loadCustomerDetails;
-      // if (amount) {
+      const bankParam = [getBankReferenceNumber, locale];
 
-      // }
-      const pagaBusinessClient = new PagaBusiness();
-      if (walletBalance < amount) {
-        return {
-          error: true,
-          message: "Insufficient Balance"
-        };
+      const getBankDetails = await pagaBusinessClient.pagaBusinessClient.getBanks(
+        ...bankParam
+      );
+      const { banks } = getBankDetails.data;
+      console.log(banks);
+      for (const [index, element] of banks) {
+        if (banks[index].name === bankName) {
+          console.log(element);
+          return banks[index].uuid;
+        }
       }
+
+      const depositToBank = await pagaBusinessClient.pagaBusinessClient.depositToBank();
+      // console.log(loadCustomerDetails);
+      // const { userId, amount: walletBalance } = loadCustomerDetails;
+      // const data = [
+      //   referenceNumber,
+      //   amount,
+      //   currency,
+      //   destinationAccountNumber,
+      //   { merchantAccount: phoneNumber },
+      //   referenceNumber,
+      //   merchantService,
+      //   purchaserPrincipal,
+      //   purchaserCredentials,
+      //   sourceOfFunds,
+      //   locale
+      // ];
+      // // const { } = loadCustomerDetails;
+      // // if (amount) {
+
+      // // }
+      // const pagaBusinessClient = new PagaBusiness();
+      // if (walletBalance < amount) {
+      //   return {
+      //     error: true,
+      //     message: "Insufficient Balance"
+      //   };
+      // }
       // const payMerchant = await pagaBusinessClient.pagaBusinessClient.merchantPayment(
       //   ...data
       // );
       // console.log(payMerchant);
-      const response = {
-        referenceNumber,
-        merchantTransactionReference: "",
-        message: "Airtime purchase request made successfully",
-        responseCode: 0,
-        transactionId: "At34",
-        fee: 50.0,
-        currency: null,
-        exchangeRate: null
-      };
-      if (response.transactionId === null) {
-        return {
-          error: true,
-          message: "Transaction Unsuccessful"
-        };
-      }
-      const merchantBalance = walletBalance - amount;
-      const transaction = new Transaction({
-        userId,
-        transactionRef: response.transactionId,
-        status: "APPROVED",
-        transactionType: "FUNDS WITHDRAWAL",
-        amount,
-        phoneNumber
-      });
-      await transaction.save();
-      console.log(onlineTicketWalletId);
-      const updateMerchantWallet = await OnlineTicketWallet.findOneAndUpdate(
-        {
-          _id: onlineTicketWalletId
-        },
-        { $set: { amount: merchantBalance } },
-        { new: true }
-      );
-      console.log(updateMerchantWallet);
+      // const response = {
+      //   referenceNumber,
+      //   merchantTransactionReference: "",
+      //   message: "Airtime purchase request made successfully",
+      //   responseCode: 0,
+      //   transactionId: "At34",
+      //   fee: 50.0,
+      //   currency: null,
+      //   exchangeRate: null
+      // };
+      // if (response.transactionId === null) {
+      //   return {
+      //     error: true,
+      //     message: "Transaction Unsuccessful"
+      //   };
+      // }
+      // const merchantBalance = walletBalance - amount;
+      // const transaction = new Transaction({
+      //   userId,
+      //   transactionRef: response.transactionId,
+      //   status: "APPROVED",
+      //   transactionType: "FUNDS WITHDRAWAL",
+      //   amount,
+      //   phoneNumber
+      // });
+      // await transaction.save();
+      // console.log(onlineTicketWalletId);
+      // const updateMerchantWallet = await OnlineTicketWallet.findOneAndUpdate(
+      //   {
+      //     _id: onlineTicketWalletId
+      //   },
+      //   { $set: { amount: merchantBalance } },
+      //   { new: true }
+      // );
+      // console.log(updateMerchantWallet);
       return {
         error: false,
-        message: "Successfully paid merchants"
+        message: "Successfully paid merchants",
+        data: getBankDetails.data
       };
     } catch (error) {
       throw new Error(error);
