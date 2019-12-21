@@ -1,5 +1,6 @@
 import Ticket, { TicketSchema } from "./ticket.model";
 import TicketType from "../ticketType/ticketType.model";
+import PagaBusiness from "../transaction/pagaBuildRequest";
 
 // const model = {
 //   title,
