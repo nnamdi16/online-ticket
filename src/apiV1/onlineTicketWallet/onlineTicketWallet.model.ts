@@ -30,9 +30,15 @@ const OnlineTicketWallet = new mongoose.Schema(
       default: 0
     }
   },
-  { timestamps: true }
+  { timestamps: true, toObject: { virtuals: true } }
 );
 
+OnlineTicketWallet.virtual("users", {
+  ref: "User",
+  localField: "userId",
+  justOnce: true,
+  foreignField: "_id"
+});
 // OnlineTicketWallet.pre<OnlineTicketWalletSchema>("save", function() {
 //   if (this.isNew) {
 //     this.OnlineTicketId = uuid4();
