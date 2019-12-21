@@ -1,14 +1,13 @@
-import Transaction, { TransactionSchema } from "./transaction.model";
-import Ticket, { TicketSchema } from "../ticket/ticket.model";
+import Transaction from "./transaction.model";
+import Ticket from "../ticket/ticket.model";
 import TicketType from "../ticketType/ticketType.model";
 import UtilLibrary from "./transaction.util";
-import OnlineTicketWallet, {
-  OnlineTicketWalletSchema
-} from "../onlineTicketWallet/onlineTicketWallet.model";
-import User from "../users/user.model";
+import OnlineTicketWallet from "../onlineTicketWallet/onlineTicketWallet.model";
 import PagaBusiness from "./pagaBuildRequest";
+import { alternatives } from "joi";
 
 export default class TransactionService {
+  private pagaBusinessClient = new PagaBusiness();
   public initiateTransaction = async (param: any): Promise<any> => {
     // Define parameter for instantiating transaction
     const {
@@ -28,7 +27,6 @@ export default class TransactionService {
       transactionType
     } = param;
 
-    const pagaBusinessClient = new PagaBusiness();
     try {
       const getTicket = await Ticket.findOne({ _id: ticketId });
       console.log(`Stop Freaking out ${getTicket}`);
@@ -75,7 +73,7 @@ export default class TransactionService {
       ];
 
       // Make payments for the event by transferring money from client paga account to app's paga account
-      const transferFunds = await pagaBusinessClient.pagaBusinessClient.moneyTransfer(
+      const transferFunds = await this.pagaBusinessClient.pagaBusinessClient.moneyTransfer(
         ...userDetails
       );
 
@@ -188,34 +186,32 @@ export default class TransactionService {
   };
 
   public payEventCreators = async (param: any): Promise<any> => {
-    // console.log(merchantNumber);
-
     // Define parameters for request body
     const {
       onlineTicketWalletId,
       amount,
       currency,
       bankName,
-      // destinationBankUUID,
       destinationAccountNumber,
       recipientPhoneNumber,
-      recipientMobileOperatorCode,
-      recipientEmail,
-      recipientName,
-      suppressRecipientMessage,
-      remarks,
-      locale
+      UserMobileOperator,
+      alternateSenderName
+      // remarks,
     } = param;
-
+    const locale = "NG";
+    const suppressRecipientMessage = false;
+    const remarks = `Withdrawal of ${amount}`;
     const util = new UtilLibrary();
+
     const getBankReferenceNumber = util.createReferenceNumber();
+    const mobileOperatorReferenceNumber = util.createReferenceNumber();
 
     try {
-      const pagaBusinessClient = new PagaBusiness();
       const loadCustomerDetails = await OnlineTicketWallet.findOne({
         _id: onlineTicketWalletId
         // amount: { $gte: amount }
-      });
+      }).populate("users");
+
       if (!loadCustomerDetails) {
         return {
           err: true,
@@ -224,50 +220,81 @@ export default class TransactionService {
       }
 
       console.log(loadCustomerDetails);
+      const recipientName = `${loadCustomerDetails.users[0].firstName} ${loadCustomerDetails.users[0].lastName} `;
+      const recipientEmail = loadCustomerDetails.users[0].Email;
       const bankParam = [getBankReferenceNumber, locale];
 
-      const getBankDetails = await pagaBusinessClient.pagaBusinessClient.getBanks(
+      const getBankDetails = await this.pagaBusinessClient.pagaBusinessClient.getBanks(
         ...bankParam
       );
       const { banks } = getBankDetails.data;
       console.log(banks);
-      for (const [index, element] of banks) {
+
+      let destinationBankUUID;
+      for (const [index, element] of banks.entries()) {
         if (banks[index].name === bankName) {
-          console.log(element);
-          return banks[index].uuid;
+          destinationBankUUID = banks[index].uuid;
         }
       }
+      console.log(`We are here ${destinationBankUUID}`);
+      // const depositToBank = await pagaBusinessClient.pagaBusinessClient.depositToBank();
+      console.log(loadCustomerDetails);
+      const { userId, amount: walletBalance } = loadCustomerDetails;
 
-      const depositToBank = await pagaBusinessClient.pagaBusinessClient.depositToBank();
-      // console.log(loadCustomerDetails);
-      // const { userId, amount: walletBalance } = loadCustomerDetails;
-      // const data = [
-      //   referenceNumber,
-      //   amount,
-      //   currency,
-      //   destinationAccountNumber,
-      //   { merchantAccount: phoneNumber },
-      //   referenceNumber,
-      //   merchantService,
-      //   purchaserPrincipal,
-      //   purchaserCredentials,
-      //   sourceOfFunds,
-      //   locale
-      // ];
-      // // const { } = loadCustomerDetails;
-      // // if (amount) {
+      const mobileOperatorParam = [mobileOperatorReferenceNumber, locale];
+      const mobileOperatorList = await this.pagaBusinessClient.pagaBusinessClient.getMobileOperators(
+        ...mobileOperatorParam
+      );
+      console.log(mobileOperatorList);
+      const { mobileOperator } = mobileOperatorList.data;
 
-      // // }
-      // const pagaBusinessClient = new PagaBusiness();
-      // if (walletBalance < amount) {
-      //   return {
-      //     error: true,
-      //     message: "Insufficient Balance"
-      //   };
-      // }
-      // const payMerchant = await pagaBusinessClient.pagaBusinessClient.merchantPayment(
-      //   ...data
-      // );
+      console.log(mobileOperator);
+
+      let recipientMobileOperatorCode;
+      for (const [index, element] of mobileOperator.entries()) {
+        console.log(mobileOperator[index].name);
+        if (mobileOperator[index].name === UserMobileOperator) {
+          recipientMobileOperatorCode =
+            mobileOperator[index].mobileOperatorCode;
+        }
+      }
+      console.log(recipientMobileOperatorCode);
+      const depositToBankDetails = [
+        getBankReferenceNumber,
+        amount,
+        currency,
+        destinationBankUUID,
+        destinationAccountNumber,
+        recipientPhoneNumber,
+        recipientMobileOperatorCode,
+        recipientEmail,
+        recipientName,
+        alternateSenderName,
+        suppressRecipientMessage,
+        remarks,
+        locale
+      ];
+
+      if (walletBalance < amount) {
+        return {
+          error: true,
+          message: "Insufficient Balance"
+        };
+      }
+      const payMerchant = await this.pagaBusinessClient.pagaBusinessClient.depositToBank(
+        ...depositToBankDetails
+      );
+      console.log(payMerchant);
+      const {
+        data: { transactionId }
+      } = payMerchant;
+      if (transactionId === null) {
+        return {
+          error: true,
+          message: "Transaction unsuccessful"
+        };
+      }
+
       // console.log(payMerchant);
       // const response = {
       //   referenceNumber,
@@ -279,35 +306,30 @@ export default class TransactionService {
       //   currency: null,
       //   exchangeRate: null
       // };
-      // if (response.transactionId === null) {
-      //   return {
-      //     error: true,
-      //     message: "Transaction Unsuccessful"
-      //   };
-      // }
-      // const merchantBalance = walletBalance - amount;
-      // const transaction = new Transaction({
-      //   userId,
-      //   transactionRef: response.transactionId,
-      //   status: "APPROVED",
-      //   transactionType: "FUNDS WITHDRAWAL",
-      //   amount,
-      //   phoneNumber
-      // });
-      // await transaction.save();
-      // console.log(onlineTicketWalletId);
-      // const updateMerchantWallet = await OnlineTicketWallet.findOneAndUpdate(
-      //   {
-      //     _id: onlineTicketWalletId
-      //   },
-      //   { $set: { amount: merchantBalance } },
-      //   { new: true }
-      // );
-      // console.log(updateMerchantWallet);
+
+      const merchantBalance = walletBalance - amount;
+      const transaction = new Transaction({
+        userId,
+        transactionRef: transactionId,
+        status: "APPROVED",
+        transactionType: "FUNDS WITHDRAWAL",
+        amount,
+        phoneNumber: recipientPhoneNumber
+      });
+      await transaction.save();
+      console.log(onlineTicketWalletId);
+      const updateMerchantWallet = await OnlineTicketWallet.findOneAndUpdate(
+        {
+          _id: onlineTicketWalletId
+        },
+        { $set: { amount: merchantBalance } },
+        { new: true }
+      );
+      console.log(updateMerchantWallet);
       return {
         error: false,
         message: "Successfully paid merchants",
-        data: getBankDetails.data
+        data: transaction
       };
     } catch (error) {
       throw new Error(error);
@@ -327,7 +349,6 @@ export default class TransactionService {
       transactionType
     } = param;
 
-    const pagaBusinessClient = new PagaBusiness();
     try {
       const validTicket = await Transaction.findOne({
         ticketId,
@@ -360,7 +381,7 @@ export default class TransactionService {
       ];
 
       console.log(userDetails[userDetails.length - 2]);
-      const sendLoyaltyGift = await pagaBusinessClient.pagaBusinessClient.airtimePurchase(
+      const sendLoyaltyGift = await this.pagaBusinessClient.pagaBusinessClient.airtimePurchase(
         ...userDetails
       );
       // const { transactionId } = sendLoyaltyGift;
