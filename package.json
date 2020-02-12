@@ -4,6 +4,9 @@
   "description": "",
   "main": "dist/index",
   "typings": "dist/index",
+  "engines": {
+    "node":"10.16.2"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/index.js",
