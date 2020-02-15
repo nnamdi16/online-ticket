@@ -5,7 +5,8 @@
   "main": "dist/index",
   "typings": "dist/index",
   "engines": {
-    "node":"10.16.2"
+    "node": "10.16.2",
+    "yarn": "1.21.1"
   },
   "heroku-prebuild": "yarn install --production=false",
   "scripts": {
@@ -13,12 +14,11 @@
     "postinstall": "npm run build",
     "start": "node dist/index.js",
     "watch-node": "nodemon ./dist/index.js",
-    "watch-ts":"tsc -w",
+    "watch-ts": "tsc -w",
     "dev": "nodemon --exec ts-node -- ./src/index.ts",
     "prod": "npm run build && npm run start",
     "clean": "rm -rf node_modules coverage dist .nyc_output",
     "lint": "tslint -t stylish --project \"tsconfig.json\""
-   
   },
   "keywords": [],
   "author": "",
