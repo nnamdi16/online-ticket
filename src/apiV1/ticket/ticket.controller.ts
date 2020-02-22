@@ -68,7 +68,7 @@ export default class TicketController {
     next: NextFunction
   ) => {
     try {
-      await services.getAllTickets((err, data) => {
+      await services.getAllTickets((err: any, data: TicketSchema) => {
         if (err) {
           res.status(400).json({
             success: false,
@@ -103,7 +103,7 @@ export default class TicketController {
   ) => {
     const id = req.params.id;
     try {
-      await services.getOneTicketById(id, (err, data) => {
+      await services.getOneTicketById(id, (err: any, data: any) => {
         if (err) {
           res.status(404).json({
             success: false,
@@ -142,7 +142,7 @@ export default class TicketController {
         id,
         req.body.amount,
 
-        (err, data) => {
+        (err: any, data: any) => {
           if (err) {
             res.status(400).json({
               success: false,
@@ -180,7 +180,7 @@ export default class TicketController {
   ) => {
     const ticketId = req.params.id;
     try {
-      await services.deleteTicket(ticketId, (err, data: TicketSchema) => {
+      await services.deleteTicket(ticketId, (err: any, data: TicketSchema) => {
         if (err) {
           return res.status(404).json({
             success: false,
@@ -251,7 +251,7 @@ export default class TicketController {
  */
 event.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await services.getAllTickets((err, data) => {
+    await services.getAllTickets((err: any, data: TicketSchema) => {
       if (err) {
         res.status(400).json({
           success: false,
@@ -283,7 +283,7 @@ event.get("/", async (req: Request, res: Response, next: NextFunction) => {
 event.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id;
   try {
-    await services.getOneTicketById(id, (err, data) => {
+    await services.getOneTicketById(id, (err: any, data: TicketSchema) => {
       if (err) {
         res.status(404).json({
           success: false,
@@ -318,7 +318,7 @@ event.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
       id,
       req.body.amount,
 
-      (err, data) => {
+      (err: any, data: TicketSchema) => {
         if (err) {
           res.status(400).json({
             success: false,
@@ -351,7 +351,7 @@ event.delete(
   async (req: Request, res: Response, next: NextFunction) => {
     const ticketId = req.params.id;
     try {
-      await services.deleteTicket(ticketId, (err, data: TicketSchema) => {
+      await services.deleteTicket(ticketId, (err: any, data: TicketSchema) => {
         if (err) {
           return res.status(404).json({
             success: false,

@@ -40,7 +40,7 @@ export default class TicketService {
       // Destructuring the result from validTicketTypes
       const { price, eventId, numberOfTicketsAvailable } = validTicketType;
 
-      // Create new ticket 
+      // Create new ticket
       const newTicket = new Ticket({
         ticketTypeId,
         price,
@@ -61,7 +61,7 @@ export default class TicketService {
 
       // Creates ticket
       const event = await newTicket.save();
-      
+
       return {
         error: false,
         event
@@ -71,7 +71,7 @@ export default class TicketService {
     }
   };
 
-  getAllTickets = async (callback): Promise<any> => {
+  getAllTickets = async (callback: any): Promise<any> => {
     await Ticket.find({}, (err: any, res: any) => {
       if (err) {
         return callback(err);
@@ -81,7 +81,7 @@ export default class TicketService {
     });
   };
 
-  getOneTicketById = async (id, callback): Promise<any> => {
+  getOneTicketById = async (id: string, callback: any): Promise<any> => {
     await Ticket.findOne({ ticketId: id }, (err: any, res: any) => {
       if (err) {
         return callback(err);
@@ -91,7 +91,11 @@ export default class TicketService {
     });
   };
 
-  updateTicket = async (ticketId, amount, callback): Promise<any> => {
+  updateTicket = async (
+    ticketId: string,
+    amount: number,
+    callback: any
+  ): Promise<any> => {
     await Ticket.findOneAndUpdate(
       {
         ticketId
@@ -111,8 +115,8 @@ export default class TicketService {
     );
   };
 
-  deleteTicket = async (id, callback) => {
-    Ticket.findOneAndDelete({ eventId: id }, (err, res: TicketSchema) => {
+  deleteTicket = async (id: string, callback: any) => {
+    Ticket.findOneAndDelete({ eventId: id }, (err, res) => {
       if (err) {
         return callback(err);
       }

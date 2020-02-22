@@ -1,10 +1,10 @@
 import Transaction from "./transaction.model";
 import Ticket from "../ticket/ticket.model";
-import TicketType from "../ticketType/ticketType.model";
+import TicketType, { TicketTypeSchema } from "../ticketType/ticketType.model";
 import UtilLibrary from "./transaction.util";
 import OnlineTicketWallet from "../onlineTicketWallet/onlineTicketWallet.model";
 import PagaBusiness from "./pagaBuildRequest";
-import { alternatives } from "joi";
+import { any } from "joi";
 
 export default class TransactionService {
   private pagaBusinessClient = new PagaBusiness();
@@ -42,17 +42,14 @@ export default class TransactionService {
         userId,
         ticketTypeId
       } = getTicket;
-      const getEventId = await TicketType.findOne({ _id: ticketTypeId });
+      const getEventId = await TicketType.findOne({
+        _id: ticketTypeId
+      });
       console.log(`Get Event ${getEventId}`);
 
       // Destructuring getEventById
-      const {
-        _id,
-        eventId,
-        ticketType,
-        numberOfTicketsAvailable,
-        price
-      } = getEventId;
+      const eventId = getEventId?.eventId;
+      const eventPrice: any = getEventId?.price;
 
       const userDetails = [
         referenceNumber,
@@ -113,9 +110,9 @@ export default class TransactionService {
       const solve = await OnlineTicketWallet.findOne({ userId });
       console.log(`we've solved the bug ${solve}`);
       console.log(`This is the userId ${userId}`);
-      const { amount: balance } = solve;
+      const balance: any = solve?.amount;
       const util = new UtilLibrary();
-      const clientReturns = util.clientReturns(balance, price);
+      const clientReturns = util.clientReturns(balance, eventPrice);
       console.log(clientReturns);
 
       const updateEventPlannerTicket = await OnlineTicketWallet.findOneAndUpdate(
@@ -125,7 +122,7 @@ export default class TransactionService {
       );
 
       console.log(updateEventPlannerTicket);
-      const { _id: onlineTicketWalletId } = updateEventPlannerTicket;
+      const onlineTicketWalletId = updateEventPlannerTicket?._id;
       // console.log(`Our transaction is here ${transactionId}`);
       // if (transactionId === null) {
       //   return {
@@ -136,7 +133,7 @@ export default class TransactionService {
       const newTransaction = new Transaction({
         eventId,
         ticketId,
-        amount: price,
+        amount: balance,
         userId,
         transactionRef: transactionId,
         status: message,
