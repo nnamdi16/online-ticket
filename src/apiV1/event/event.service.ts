@@ -61,7 +61,7 @@ export default class EventService {
     }
   };
 
-  getAllEvent = async (callback): Promise<any> => {
+  getAllEvent = async (callback: any): Promise<any> => {
     await Event.find({}, (err: any, res: any) => {
       if (err) {
         return callback(err);
@@ -71,7 +71,7 @@ export default class EventService {
     });
   };
 
-  getOneEventById = async (id, callback): Promise<any> => {
+  getOneEventById = async (id: string, callback: any): Promise<any> => {
     await Event.findOne({ eventId: id }, (err: any, res: any) => {
       if (err) {
         return callback(err);
@@ -82,20 +82,20 @@ export default class EventService {
   };
 
   updateEvent = async (
-    eventId,
-    title,
-    description,
-    location,
-    category,
-    startDate,
-    endDate,
-    time,
-    noOfAttendees,
-    eventUrl,
-    imageUrl,
-    authorId,
-    status,
-    callback
+    eventId: string,
+    title: string,
+    description: string,
+    location: string,
+    category: string,
+    startDate: Date,
+    endDate: Date,
+    time: string,
+    noOfAttendees: number,
+    eventUrl: string,
+    imageUrl: string,
+    authorId: string,
+    status: string,
+    callback: any
   ): Promise<any> => {
     await Event.findOneAndUpdate(
       {
@@ -127,8 +127,8 @@ export default class EventService {
     );
   };
 
-  deleteEvent = async (id, callback) => {
-    Event.findOneAndDelete({ eventId: id }, (err, res: EventSchema) => {
+  deleteEvent = async (id: string, callback: any) => {
+    Event.findOneAndDelete({ eventId: id }, (err, res) => {
       console.log("We are here");
       if (err) {
         return callback(err);

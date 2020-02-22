@@ -13,7 +13,6 @@ const controller = new EventService();
  * Create an Event
  */
 
-
 export default class EventController {
   public register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -63,7 +62,7 @@ export default class EventController {
     next: NextFunction
   ) => {
     try {
-      await controller.getAllEvent((err, data) => {
+      await controller.getAllEvent((err: any, data: EventSchema) => {
         if (err) {
           res.status(400).json({
             success: false,
@@ -99,7 +98,7 @@ export default class EventController {
   ) => {
     const id = req.params.id;
     try {
-      await controller.getOneEventById(id, (err, data) => {
+      await controller.getOneEventById(id, (err: any, data: EventSchema) => {
         if (err) {
           res.status(404).json({
             success: false,
@@ -151,7 +150,7 @@ export default class EventController {
         req.body.authorId,
         req.body.status,
 
-        (err, data) => {
+        (err: any, data: EventSchema) => {
           if (err) {
             res.status(400).json({
               success: false,
@@ -189,7 +188,7 @@ export default class EventController {
   ) => {
     const eventId = req.params.id;
     try {
-      await controller.deleteEvent(eventId, (err, data: EventSchema) => {
+      await controller.deleteEvent(eventId, (err: any, data: EventSchema) => {
         if (err) {
           return res.status(404).json({
             success: false,

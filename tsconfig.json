@@ -1,40 +1,40 @@
-{
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-
-    "noImplicitAny": false,
-
-    "outDir": "../dst/",
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "typeRoots": [
-      "./typings",
-      "node_modules/@types"
-    ]
-  },
-  "include": ["src/**/*.ts", "index.d.ts"],
-  "exclude": ["types"],
-  "allowJs": true,
-}
-
 // {
 //   "compilerOptions": {
-//     "moduleResolution": "node",
 //     "target": "es6",
 //     "module": "commonjs",
-//     "lib": ["esnext"],
-//     "strict": true,
+
+//     "noImplicitAny": false,
+
+//     "outDir": "../dst/",
 //     "sourceMap": true,
-//     "declaration": true,
 //     "esModuleInterop": true,
-//     "allowSyntheticDefaultImports": true,
-//     "experimentalDecorators": true,
-//     "emitDecoratorMetadata": true,
-//     "declarationDir": "./dist",
-//     "outDir": "./dist",
-//     "typeRoots": ["node_modules/@types"]
+//     "typeRoots": [
+//       "./typings",
+//       "node_modules/@types"
+//     ]
 //   },
-//   "include": ["src/**/*.ts"],
-//   "exclude": ["node_modues"]
+//   "include": ["src/**/*.ts", "index.d.ts"],
+//   "exclude": ["types"],
+//   "allowJs": true,
 // }
+
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "es6",
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declarationDir": "./dist",
+    "outDir": "./dist",
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modues"]
+}

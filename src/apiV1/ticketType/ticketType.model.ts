@@ -4,7 +4,7 @@ import { TicketType } from "./ticketType.typings";
 
 export interface TicketTypeSchema extends TicketType, mongoose.Document {}
 
-const TicketType = new mongoose.Schema({
+const TicketType = new Schema({
   // ticketTypeId: {
   //   type: String
   // },
