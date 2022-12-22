@@ -34,7 +34,7 @@
     "express": "^4.16.3",
     "helmet": "^3.13.0",
     "http-status": "^1.2.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwt-then": "^1.0.1",
     "mongoose": "^5.7.12",
     "paga-business": "^1.0.0",
